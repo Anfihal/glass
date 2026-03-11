@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отзывы клиентов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Декоративные элементы фона */
+        .bg-shape {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bg-shape-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-shape-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #5f27cd, #48dbfb);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        .bg-shape-3 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #00d2d3, #54a0ff);
+            top: 50%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Заголовок страницы */
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .page-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Фильтры отзывов */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #764ba2;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Сетка отзывов */
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        /* Стеклянная карточка отзыва */
+        .review-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 45px 0 rgba(31,38,135,0.5);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .review-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 8rem;
+            color: rgba(255,255,255,0.1);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        /* Рейтинг звёзд */
+        .rating {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .star.empty {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Текст отзыва */
+        .review-text {
+            color: white;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Автор отзыва */
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .author-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            overflow: hidden;
+        }
+
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-info h4 {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .author-info span {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Дата отзыва */
+        .review-date {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+
+        /* Кнопка "Написать отзыв" */
+        .write-review-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #764ba2;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .write-review-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-form input,
+        .modal-form textarea {
+            padding: 15px 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .modal-form input::placeholder,
+        .modal-form textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .modal-form input:focus,
+        .modal-form textarea:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .modal-form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .modal-form .rating-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-form .rating-input .star {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .modal-form .rating-input .star:hover {
+            transform: scale(1.3);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.submit {
+            background: white;
+            color: #764ba2;
+        }
+
+        .modal-btn.submit:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        /* Анимация появления карточек */
+        .review-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .review-card:nth-child(1) { animation-delay: 0.1s; }
+        .review-card:nth-child(2) { animation-delay: 0.2s; }
+        .review-card:nth-child(3) { animation-delay: 0.3s; }
+        .review-card:nth-child(4) { animation-delay: 0.4s; }
+        .review-card:nth-child(5) { animation-delay: 0.5s; }
+        .review-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Счётчик отзывов */
+        .reviews-count {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .reviews-count span {
+            color: white;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-container {
+                gap: 10px;
+            }
+
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .modal {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Уведомление об успехе */
+        .toast {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 20px 30px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            z-index: 999;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Фоновые элементы -->
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+
+    <div class="container">
+        <!-- Заголовок -->
+        <header class="page-header">
+            <h1>Отзывы клиентов</h1>
+            <p>Узнайте, что говорят о нас наши довольные клиенты</p>
+        </header>
+
+        <!-- Фильтры -->
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">Все отзывы</button>
+            <button class="filter-btn" data-filter="5">⭐⭐⭐⭐⭐</button>
+            <button class="filter-btn" data-filter="4">⭐⭐⭐⭐</button>
+            <button class="filter-btn" data-filter="service">Услуги</button>
+            <button class="filter-btn" data-filter="product">Товары</button>
+        </div>
+
+        <!-- Счётчик -->
+        <div class="reviews-count">
+            Показано <span id="visibleCount">6</span> из <span id="totalCount">6</span> отзывов
+        </div>
+
+        <!-- Сетка отзывов -->
+        <div class="reviews-grid" id="reviewsGrid">
+            <!-- Отзыв 1 -->
+            <div class="review-card" data-rating="5" data-category="service">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <p class="review-text">Потрясающий сервис! Команда превзошла все мои ожидания. Быстро, качественно и очень профессионально. Обязательно буду рекомендовать друзьям и коллегам.</p>
+                <div class="review-author">
+                    <div class="author-avatar">👩</div>
+                    <div class="author-info">
+                        <h4>Анна Петрова</h4>
+                        <span>Москва, Россия</span>
+                    </div>
+                </div>
+                <div class="review-date">15 декабря 2024</div>
+            </div>
+
+            <!-- Отзыв 2 -->
+            <div class="review-card" data-rating="5" data-category="product">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <p class="review-text">Товар полностью соответствует описанию. Качество на высоте, упаковка аккуратная. Доставка была быстрее, чем обещали. Очень довольна покупкой!</p>
+                <div class="review-author">
+                    <div class="author-avatar">👨</div>
+                    <div class="author-info">
+                        <h4>Дмитрий Иванов</h4>
+                        <span>Санкт-Петербург</span>
+                    </div>
+                </div>
+                <div class="review-date">12 декабря 2024</div>
+            </div>
+
+            <!-- Отзыв 3 -->
+            <div class="review-card" data-rating="4" data-category="service">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star empty">★</span>
+                </div>
+                <p class="review-text">Хороший опыт в целом. Единственный минус — немного долго отвечали на вопросы в чате поддержки. Но результат того стоил!</p>
+                <div class="review-author">
+                    <div class="author-avatar">👩</div>
+                    <div class="author-info">
+                        <h4>Елена Смирнова</h4>
+                        <span>Казань</span>
+                    </div>
+                </div>
+                <div class="review-date">10 декабря 2024</div>
+            </div>
+
+            <!-- Отзыв 4 -->
+            <div class="review-card" data-rating="5" data-category="product">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <p class="review-text">Лучшая покупка этого года! Продукт работает безупречно уже третий месяц. Цена полностью оправдана качеством. Спасибо за отличный товар!</p>
+                <div class="review-author">
+                    <div class="author-avatar">👨</div>
+                    <div class="author-info">
+                        <h4>Алексей Козлов</h4>
+                        <span>Новосибирск</span>
+                    </div>
+                </div>
+                <div class="review-date">8 декабря 2024</div>
+            </div>
+
+            <!-- Отзыв 5 -->
+            <div class="review-card" data-rating="5" data-category="service">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <p class="review-text">Профессиональный подход к каждому клиенту. Менеджеры всегда на связи, помогают решить любые вопросы. Чувствуется, что компания ценит своих клиентов.</p>
+                <div class="review-author">
+                    <div class="author-avatar">👩</div>
+                    <div class="author-info">
+                        <h4>Ольга Морозова</h4>
+                        <span>Екатеринбург</span>
+                    </div>
+                </div>
+                <div class="review-date">5 декабря 2024</div>
+            </div>
+
+            <!-- Отзыв 6 -->
+            <div class="review-card" data-rating="4" data-category="product">
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star empty">★</span>
+                </div>
+                <p class="review-text">Качественный продукт за свои деньги. Небольшие недочёты в инструкции, но в целом всё понятно. Буду заказывать ещё в будущем.</p>
+                <div class="review-author">
+                    <div class="author-avatar">👨</div>
+                    <div class="author-info">
+                        <h4>Игорь Волков</h4>
+                        <span>Владивосток</span>
+                    </div>
+                </div>
+                <div class="review-date">1 декабря 2024</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка написания отзыва -->
+    <button class="write-review-btn" id="writeReviewBtn" title="Написать отзыв">✎</button>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" id="closeModal">×</button>
+            <h2>Написать отзыв</h2>
+            <form class="modal-form" id="reviewForm">
+                <input type="text" placeholder="Ваше имя" required id="authorName">
+                <input type="text" placeholder="Ваш город" required id="authorCity">
+                <div class="rating-input" id="ratingInput">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <textarea placeholder="Ваш отзыв..." required id="reviewText"></textarea>
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn cancel" id="cancelBtn">Отмена</button>
+                    <button type="submit" class="modal-btn submit">Отправить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="toast" id="toast">Спасибо за ваш отзыв! 🎉</div>
+
+    <script>
+        // Фильтрация отзывов
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const reviewCards = document.querySelectorAll('.review-card');
+        const visibleCountEl = document.getElementById('visibleCount');
+        const totalCountEl = document.getElementById('totalCount');
+
+        totalCountEl.textContent = reviewCards.length;
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+                let visibleCount = 0;
+
+                reviewCards.forEach((card, index) => {
+                    const rating = card.dataset.rating;
+                    const category = card.dataset.category;
+
+                    let show = false;
+                    if (filter === 'all') show = true;
+                    else if (filter === '5' || filter === '4') show = rating === filter;
+                    else show = category === filter;
+
+                    if (show) {
+                        card.style.display = 'block';
+                        card.style.animation = 'none';
+                        card.offsetHeight;
+                        card.style.animation = `fadeInUp 0.6s ease forwards ${index * 0.1}s`;
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                visibleCountEl.textContent = visibleCount;
+            });
+        });
+
+        // Модальное окно
+        const modalOverlay = document.getElementById('modalOverlay');
+        const writeReviewBtn = document.getElementById('writeReviewBtn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const reviewForm = document.getElementById('reviewForm');
+        const ratingInput = document.getElementById('ratingInput');
+        const ratingStars = ratingInput.querySelectorAll('.star');
+        let selectedRating = 0;
+
+        writeReviewBtn.addEventListener('click', () => {
+            modalOverlay.classList.add('active');
+        });
+
+        const hideModal = () => {
+            modalOverlay.classList.remove('active');
+            reviewForm.reset();
+            selectedRating = 0;
+            ratingStars.forEach(star => star.style.color = '#ffd700');
+        };
+
+        closeModal.addEventListener('click', hideModal);
+        cancelBtn.addEventListener('click', hideModal);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) hideModal();
+        });
+
+        // Выбор рейтинга
+        ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                ratingStars.forEach((s, index) => {
+                    s.style.color = index < selectedRating ? '#ffd700' : 'rgba(255,255,255,0.4)';
+                });
+            });
+
+            star.addEventListener('mouseenter', () => {
+                const value = parseInt(star.dataset.value);
+                ratingStars.forEach((s, index) => {
+                    s.style.color = index < value ? '#ffd700' : 'rgba(255,255,255,0.4)';
+                });
+            });
+        });
+
+        ratingInput.addEventListener('mouseleave', () => {
+            ratingStars.forEach((s, index) => {
+                s.style.color = index < selectedRating ? '#ffd700' : 'rgba(255,255,255,0.4)';
+            });
+        });
+
+        // Отправка формы
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (selectedRating === 0) {
+                alert('Пожалуйста, выберите рейтинг!');
+                return;
+            }
+
+            const name = document.getElementById('authorName').value;
+            const city = document.getElementById('authorCity').value;
+            const text = document.getElementById('reviewText').value;
+
+            // Создаём новую карточку отзыва
+            const newCard = document.createElement('div');
+            newCard.className = 'review-card';
+            newCard.dataset.rating = selectedRating;
+            newCard.dataset.category = 'service';
+
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= selectedRating) {
+                    starsHtml += '<span class="star">★</span>';
+                } else {
+                    starsHtml += '<span class="star empty">★</span>';
+                }
+            }
+
+            const date = new Date().toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            newCard.innerHTML = `
+                <div class="rating">${starsHtml}</div>
+                <p class="review-text">${text}</p>
+                <div class="review-author">
+                    <div class="author-avatar">👤</div>
+                    <div class="author-info">
+                        <h4>${name}</h4>
+                        <span>${city}</span>
+                    </div>
+                </div>
+                <div class="review-date">${date}</div>
+            `;
+
+            document.getElementById('reviewsGrid').prepend(newCard);
+            totalCountEl.textContent = parseInt(totalCountEl.textContent) + 1;
+            visibleCountEl.textContent = parseInt(visibleCountEl.textContent) + 1;
+
+            hideModal();
+            showToast();
+        });
+
+        // Уведомление
+        const toast = document.getElementById('toast');
+        const showToast = () => {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        };
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
